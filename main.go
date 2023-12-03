@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/burtenshaw/advent/src/day1" // Replace with your actual module path
-	// "github.com/burtenshaw/advent/src/day2" // Replace with your actual module path
+	"github.com/burtenshaw/advent/src/day2" // Replace with your actual module path
 )
 
 func main() {
@@ -19,8 +19,8 @@ func main() {
     switch day {
     case "1":
         day1.Run() // Ensure there's a Run function in day1 package
-    // case "2":
-    //     day2.Run() // Ensure there's a Run function in day2 package
+    case "2":
+        day2.Run() // Ensure there's a Run function in day2 package
     default:
         fmt.Println("Day not implemented")
     }

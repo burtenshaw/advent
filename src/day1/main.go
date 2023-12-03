@@ -71,7 +71,7 @@ func CountLine(line string) (int, string, string) {
 
 
 func Run() {
-    file, err := os.Open("input.txt")
+    file, err := os.Open("data/day1/input.txt")
     if err != nil {
         fmt.Println("Error opening file:", err)
         return
@@ -82,7 +82,7 @@ func Run() {
     totalSum := 0
 
     // Prepare CSV file for predictions
-    outputFile, err := os.Create("predictions.csv")
+    outputFile, err := os.Create("data/day1/predictions.csv")
     if err != nil {
         fmt.Println("Error creating predictions CSV file:", err)
         return
