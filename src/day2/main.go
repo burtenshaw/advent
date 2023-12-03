@@ -1,12 +1,12 @@
 package day2
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/burtenshaw/advent/src/utils"
 )
 
 func parseGame(line string) (int, bool) {
@@ -88,41 +88,25 @@ func parseGamePowers(line string) (int, int, int, int, bool) {
     return gameId, maxRed, maxGreen, maxBlue, true
 }
 
-func Run() {
-	rootDir, err := os.Getwd()
-	if err != nil {
-		fmt.Println("Error getting current directory:", err)
-		return
-	}
-	dataPath := rootDir + "/data/day2/input.txt"
-    file, err := os.Open(dataPath)
-    if err != nil {
-        fmt.Fprintln(os.Stderr, "error opening file:", err)
-        return
-    }
-    defer file.Close()
+func Run(inputPath string) {
+	input := utils.Reader(inputPath)
 
-    scanner := bufio.NewScanner(file)
     sum := 0
 	sumOfPowers := 0
 
-    for scanner.Scan() {
-        gameId, possible := parseGame(scanner.Text())
+    for _, line := range strings.Split(input, "\n") {
+        gameId, possible := parseGame(line)
         if possible {
             sum += gameId
         }
-		gameId, maxRed, maxGreen, maxBlue, valid := parseGamePowers(scanner.Text())
+		gameId, maxRed, maxGreen, maxBlue, valid := parseGamePowers(line)
 		if valid {
 			power := maxRed * maxGreen * maxBlue
 			sumOfPowers += power
 		}
 
     }
-
-    if err := scanner.Err(); err != nil {
-        fmt.Fprintln(os.Stderr, "reading file:", err)
-    }
-
+	fmt.Println("Day 2")
     fmt.Println("Sum of IDs of possible games:", sum)
 	fmt.Println("Sum of powers of possible games:", sumOfPowers)
 }

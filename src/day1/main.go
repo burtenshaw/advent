@@ -1,12 +1,11 @@
 package day1
 
 import (
-	"bufio"
-	"encoding/csv"
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
+
+	"github.com/burtenshaw/advent/src/utils"
 )
 
 // mapWordToDigit maps spelled-out numbers to digits.
@@ -22,7 +21,7 @@ func mapWordToDigit(word string) string {
 }
 
 // CountLine calculates the calibration value from a line of text.
-func CountLine(line string) (int, string, string) {
+func CountLine(line string) int {
     words := []string{"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"}
     firstDigit := ""
     lastDigit := ""
@@ -56,62 +55,28 @@ func CountLine(line string) (int, string, string) {
 
     // Handle case where no valid digit/number-word is found
     if firstDigit == "" || lastDigit == "" {
-        return 0, firstDigit, lastDigit
+        return 0
     }
 
     combined := firstDigit + lastDigit
     number, err := strconv.Atoi(combined)
     if err != nil {
         fmt.Println("Error converting to number:", combined)
-        return 0, firstDigit, lastDigit
+        return 0
     }
 
-    return number, firstDigit, lastDigit
+    return number
 }
 
 
-func Run() {
-    file, err := os.Open("data/day1/input.txt")
-    if err != nil {
-        fmt.Println("Error opening file:", err)
-        return
-    }
-    defer file.Close()
+func Run(inputPath string) {
 
-    scanner := bufio.NewScanner(file)
+    input := utils.Reader(inputPath)
     totalSum := 0
 
-    // Prepare CSV file for predictions
-    outputFile, err := os.Create("data/day1/predictions.csv")
-    if err != nil {
-        fmt.Println("Error creating predictions CSV file:", err)
-        return
-    }
-    defer outputFile.Close()
-
-    csvWriter := csv.NewWriter(outputFile)
-
-    for scanner.Scan() {
-        line := scanner.Text()
-        number, firstDigit, lastDigit := CountLine(line) // Modify CountLine to return digits too
+    for _, line := range strings.Split(input, "\n") {
+        number := CountLine(line) // Modify CountLine to return digits too
         totalSum += number
-
-        // Write to CSV
-        err := csvWriter.Write([]string{line, firstDigit, lastDigit, fmt.Sprintf("%d", number)})
-        if err != nil {
-            fmt.Println("Error writing to CSV:", err)
-            return
-        }
-    }
-
-    if err := scanner.Err(); err != nil {
-        fmt.Println("Error reading from scanner:", err)
-    }
-
-    // Flush and close CSV writer
-    csvWriter.Flush()
-    if err := csvWriter.Error(); err != nil {
-        fmt.Println("Error flushing CSV writer:", err)
     }
 
     fmt.Println("Total sum:", totalSum)
