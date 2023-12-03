@@ -20,6 +20,8 @@ func Run(input string) {
 	fmt.Printf("%d\n", gearCandidates.SumAllGearRatios())
 }
 
+// SCHEMATIC
+
 type SchematicNumber struct {
 	Value           int
 	AdjacentSymbols map[string]bool
@@ -35,33 +37,6 @@ type Schematic struct {
 	Dimensions SchematicDimensions
 }
 
-func NewSchematic(input string) (schematic Schematic) {
-	schematic.Contents = input
-	for i, c := range input {
-		if c == rune('\n') {
-			schematic.Dimensions.Width = i
-			schematic.Dimensions.Length = len(input) / schematic.Dimensions.Width
-			break
-		}
-	}
-	return
-}
-
-func (s Schematic) GetSymbol(x, y int) (rune, error) {
-    if x >= s.Dimensions.Width || y >= s.Dimensions.Length || x < 0 || y < 0 {
-        return 0, errors.New("coordinates out of bounds")
-    }
-    symbolIndex := x + s.Dimensions.Width*y + y
-    return rune(s.Contents[symbolIndex]), nil
-}
-
-func NewSchematicNumber(value int) (s SchematicNumber) {
-	s.Value = value
-	s.AdjacentSymbols = make(map[string]bool)
-	return
-}
-
-
 // GEAR CANDIDATES
 
 type Coordinates struct {
@@ -69,7 +44,6 @@ type Coordinates struct {
 	y int
 }
 
-// gear candidate is a list of potential part number values, which will later be used to calculate ratio
 type GearCandidate []int
 
 type GearCandidates map[Coordinates]GearCandidate
@@ -149,6 +123,8 @@ func (s Schematic) GetSchematicParts() ([]SchematicNumber, GearCandidates) {
     return numbers, gearCandidates
 }
 
+// NUMBERS
+
 func (n SchematicNumber) IsPartNumber() bool {
 	for symbol := range n.AdjacentSymbols {
 		if symbol != "." {
@@ -164,6 +140,32 @@ func sumPartNumbers(schematicNumbers []SchematicNumber) (partNumbersSum int) {
 			partNumbersSum += schematicNumber.Value
 		}
 	}
+	return
+}
+
+func NewSchematic(input string) (schematic Schematic) {
+	schematic.Contents = input
+	for i, c := range input {
+		if c == rune('\n') {
+			schematic.Dimensions.Width = i
+			schematic.Dimensions.Length = len(input) / schematic.Dimensions.Width
+			break
+		}
+	}
+	return
+}
+
+func (s Schematic) GetSymbol(x, y int) (rune, error) {
+    if x >= s.Dimensions.Width || y >= s.Dimensions.Length || x < 0 || y < 0 {
+        return 0, errors.New("coordinates out of bounds")
+    }
+    symbolIndex := x + s.Dimensions.Width*y + y
+    return rune(s.Contents[symbolIndex]), nil
+}
+
+func NewSchematicNumber(value int) (s SchematicNumber) {
+	s.Value = value
+	s.AdjacentSymbols = make(map[string]bool)
 	return
 }
 
