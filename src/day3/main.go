@@ -37,6 +37,24 @@ type Schematic struct {
 	Dimensions SchematicDimensions
 }
 
+func NewSchematic(input string) (schematic Schematic) {
+	schematic.Contents = input
+	for i, c := range input {
+		if c == rune('\n') {
+			schematic.Dimensions.Width = i
+			schematic.Dimensions.Length = len(input) / schematic.Dimensions.Width
+			break
+		}
+	}
+	return
+}
+
+func NewSchematicNumber(value int) (s SchematicNumber) {
+	s.Value = value
+	s.AdjacentSymbols = make(map[string]bool)
+	return
+}
+
 // GEAR CANDIDATES
 
 type Coordinates struct {
@@ -72,55 +90,55 @@ func (g GearCandidates) SumAllGearRatios() (sumRatios int) {
 }
 
 func (s Schematic) GetSchematicParts() ([]SchematicNumber, GearCandidates) {
-    numbers := []SchematicNumber{}
-    gearCandidates := GearCandidates{}
+	numbers := []SchematicNumber{}
+	gearCandidates := GearCandidates{}
 
-    x, y := 0, 0
-    incrementCoordinates := func(c rune) {
-        switch c {
-        case rune('\n'):
-            x, y = 0, y+1
-        default:
-            x++
-        }
-    }
+	x, y := 0, 0
+	incrementCoordinates := func(c rune) {
+		switch c {
+		case rune('\n'):
+			x, y = 0, y+1
+		default:
+			x++
+		}
+	}
 
-    currentValue := 0
-    numberLength := 0
+	currentValue := 0
+	numberLength := 0
 
-    addSymbolIfPossible := func(number *SchematicNumber, cx, cy int) {
-        if symbol, err := s.GetSymbol(cx, cy); err == nil {
-            number.AdjacentSymbols[string(symbol)] = true
-            if symbol == rune('*') {
-                gearCandidates[Coordinates{x: cx, y: cy}] = append(gearCandidates[Coordinates{x: cx, y: cy}], currentValue)
-            }
-        }
-    }
+	addSymbolIfPossible := func(number *SchematicNumber, cx, cy int) {
+		if symbol, err := s.GetSymbol(cx, cy); err == nil {
+			number.AdjacentSymbols[string(symbol)] = true
+			if symbol == rune('*') {
+				gearCandidates[Coordinates{x: cx, y: cy}] = append(gearCandidates[Coordinates{x: cx, y: cy}], currentValue)
+			}
+		}
+	}
 
-    newSchematicNumberWithAdjacentSymbols := func() SchematicNumber {
-        number := NewSchematicNumber(currentValue)
-        addSymbolIfPossible(&number, x, y)	
-        addSymbolIfPossible(&number, x-numberLength-1, y)
-        for i := x - numberLength - 1; i <= x; i++ {
-            addSymbolIfPossible(&number, i, y-1)
-            addSymbolIfPossible(&number, i, y+1)
-        }
-        return number
-    }
+	newSchematicNumberWithAdjacentSymbols := func() SchematicNumber {
+		number := NewSchematicNumber(currentValue)
+		addSymbolIfPossible(&number, x, y)
+		addSymbolIfPossible(&number, x-numberLength-1, y)
+		for i := x - numberLength - 1; i <= x; i++ {
+			addSymbolIfPossible(&number, i, y-1)
+			addSymbolIfPossible(&number, i, y+1)
+		}
+		return number
+	}
 
-    for _, char := range s.Contents {
-        if digit, err := strconv.Atoi(string(char)); err == nil {
-            currentValue = currentValue*10 + digit
-            numberLength++
-        } else if currentValue > 0 {
-            currentNumber := newSchematicNumberWithAdjacentSymbols()
-            numbers = append(numbers, currentNumber)
-            currentValue = 0
-            numberLength = 0
-        }
-        incrementCoordinates(char)
-    }
-    return numbers, gearCandidates
+	for _, char := range s.Contents {
+		if digit, err := strconv.Atoi(string(char)); err == nil {
+			currentValue = currentValue*10 + digit
+			numberLength++
+		} else if currentValue > 0 {
+			currentNumber := newSchematicNumberWithAdjacentSymbols()
+			numbers = append(numbers, currentNumber)
+			currentValue = 0
+			numberLength = 0
+		}
+		incrementCoordinates(char)
+	}
+	return numbers, gearCandidates
 }
 
 // NUMBERS
@@ -143,29 +161,10 @@ func sumPartNumbers(schematicNumbers []SchematicNumber) (partNumbersSum int) {
 	return
 }
 
-func NewSchematic(input string) (schematic Schematic) {
-	schematic.Contents = input
-	for i, c := range input {
-		if c == rune('\n') {
-			schematic.Dimensions.Width = i
-			schematic.Dimensions.Length = len(input) / schematic.Dimensions.Width
-			break
-		}
-	}
-	return
-}
-
 func (s Schematic) GetSymbol(x, y int) (rune, error) {
-    if x >= s.Dimensions.Width || y >= s.Dimensions.Length || x < 0 || y < 0 {
-        return 0, errors.New("coordinates out of bounds")
-    }
-    symbolIndex := x + s.Dimensions.Width*y + y
-    return rune(s.Contents[symbolIndex]), nil
+	if x >= s.Dimensions.Width || y >= s.Dimensions.Length || x < 0 || y < 0 {
+		return 0, errors.New("coordinates out of bounds")
+	}
+	symbolIndex := x + s.Dimensions.Width*y + y
+	return rune(s.Contents[symbolIndex]), nil
 }
-
-func NewSchematicNumber(value int) (s SchematicNumber) {
-	s.Value = value
-	s.AdjacentSymbols = make(map[string]bool)
-	return
-}
-
