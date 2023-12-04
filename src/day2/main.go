@@ -9,6 +9,31 @@ import (
 	"github.com/burtenshaw/advent/src/utils"
 )
 
+
+func Run(inputPath string) {
+	input := utils.Reader(inputPath)
+
+	sum := 0
+	sumOfPowers := 0
+
+	for _, line := range strings.Split(input, "\n") {
+		gameId, possible := parseGame(line)
+		if possible {
+			sum += gameId
+		}
+		gameId, maxRed, maxGreen, maxBlue, valid := parseGamePowers(line)
+		if valid {
+			power := maxRed * maxGreen * maxBlue
+			sumOfPowers += power
+		}
+
+	}
+	fmt.Println("Day 2")
+	fmt.Println("Sum of IDs of possible games:", sum)
+	fmt.Println("Sum of powers of possible games:", sumOfPowers)
+}
+
+
 func parseGame(line string) (int, bool) {
 	re := regexp.MustCompile(`Game (\d+): (.+)`)
 	matches := re.FindStringSubmatch(line)
@@ -86,27 +111,4 @@ func parseGamePowers(line string) (int, int, int, int, bool) {
 	}
 
 	return gameId, maxRed, maxGreen, maxBlue, true
-}
-
-func Run(inputPath string) {
-	input := utils.Reader(inputPath)
-
-	sum := 0
-	sumOfPowers := 0
-
-	for _, line := range strings.Split(input, "\n") {
-		gameId, possible := parseGame(line)
-		if possible {
-			sum += gameId
-		}
-		gameId, maxRed, maxGreen, maxBlue, valid := parseGamePowers(line)
-		if valid {
-			power := maxRed * maxGreen * maxBlue
-			sumOfPowers += power
-		}
-
-	}
-	fmt.Println("Day 2")
-	fmt.Println("Sum of IDs of possible games:", sum)
-	fmt.Println("Sum of powers of possible games:", sumOfPowers)
 }

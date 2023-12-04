@@ -7,6 +7,7 @@ import (
 	"github.com/burtenshaw/advent/src/day1"
 	"github.com/burtenshaw/advent/src/day2"
 	"github.com/burtenshaw/advent/src/day3"
+	"github.com/burtenshaw/advent/src/day4"
 )
 
 func main() {
@@ -26,6 +27,8 @@ func main() {
 		day2.Run(inputData) // Ensure there's a Run function in day2 package
 	case "3":
 		day3.Run(inputData) // Ensure there's a Run function in day3 package
+	case "4":
+		day4.Run(inputData) // Ensure there's a Run function in day4 package
 	default:
 		fmt.Println("Day not implemented")
 	}
