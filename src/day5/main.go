@@ -3,13 +3,12 @@ package day5
 import (
 	"fmt"
 	"math"
-	"runtime"
 	"strings"
-	"sync"
-	"time"
 
 	"github.com/burtenshaw/advent/src/utils"
 )
+
+
 
 type maps struct {
 	seeds []int64
@@ -75,19 +74,6 @@ func findIndex(lines []string, s string) int {
 	return -1
 }
 
-func useMap(im islandMap, val int64) int64 {
-	for _, m := range im {
-		ss := m[1]
-		se := ss + m[2]
-
-		if ss <= val && val < se {
-			ds := m[0]
-			dist := val - ss
-			return ds + dist
-		}
-	}
-	return val
-}
 
 func LowestLocationNumber(m maps) int64 {
 	ims := []islandMap{
@@ -116,67 +102,76 @@ func LowestLocationNumber(m maps) int64 {
 	return minVal
 }
 
+
+// useMap applies the mapping rules to a seed
+func useMap(im islandMap, val int64) int64 {
+	for _, m := range im {
+		ss := m[1]
+		se := ss + m[2]
+		if ss <= val && val < se {
+			ds := m[0]
+			return ds + (val - ss)
+		}
+	}
+	return val
+}
+
+func findMinimum(m maps, start, length, step int64, ims []islandMap) int64 {
+	if step == int64(len(ims)) { // Terminal condition: reached the 'location' category.
+		return start
+	}
+
+	im := ims[step]
+	minVal := int64(math.MaxInt64)
+
+	for _, mapping := range im {
+		sourceStart, sourceEnd := mapping[1], mapping[1]+mapping[2]
+		destStart := mapping[0]
+		if sourceStart <= start && start < sourceEnd {
+			// Current seed falls within the mapping range.
+			mappedStart := destStart + (start - sourceStart)
+			mappedLength := min(sourceEnd, start+length) - start
+			mappedVal := findMinimum(m, mappedStart, mappedLength, step+1, ims)
+			if mappedVal < minVal {
+				minVal = mappedVal
+			}
+			if mappedLength < length {
+				// Handle the unmapped part of the range.
+				unmappedVal := findMinimum(m, start+mappedLength, length-mappedLength, step, ims)
+				if unmappedVal < minVal {
+					minVal = unmappedVal
+				}
+			}
+			return minVal // Since ranges do not overlap, we can return immediately.
+		}
+	}
+
+	// If no mapping range includes the current seed, process the next category.
+	return findMinimum(m, start, length, step+1, ims)
+}
+
+// LowestAnyLocationNumber finds the lowest location number 
+// that corresponds to any of the initial seed numbers.
 func LowestAnyLocationNumber(m maps) int64 {
 	ims := []islandMap{
-		m.sts,
-		m.stf,
-		m.ftw,
-		m.wtl,
-		m.ltt,
-		m.tth,
-		m.htl,
+		m.sts, m.stf, m.ftw, m.wtl, m.ltt, m.tth, m.htl,
 	}
 
-	// Determine an appropriate number of workers
-	workerCount := runtime.NumCPU()
-	workChan := make(chan int, workerCount)
-	results := make(chan int64)
-	var wg sync.WaitGroup
-
-	// Create workers
-	for i := 0; i < workerCount; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for i := range workChan {
-				startTime := time.Now()
-				ml := int64(math.MaxInt64)
-				for seed := m.seeds[i]; seed < m.seeds[i]+m.seeds[i+1]; seed++ {
-					val := seed
-					for _, im := range ims {
-						val = useMap(im, val)
-					}
-					if val < ml {
-						ml = val
-					}
-				}
-				endTime := time.Now()
-				fmt.Printf("Finished goroutine for range starting at %d, %f seconds\n", i, endTime.Sub(startTime).Seconds())
-				results <- ml
-			}
-		}()
-	}
-
-	// spread it out
-	go func() {
-		for i := 0; i < len(m.seeds); i += 2 {
-			workChan <- i
-		}
-		close(workChan)
-	}()
-
-	// pick up results
-	go func() {
-		wg.Wait()
-		close(results)
-	}()
-
-	minLoc := int64(math.MaxInt64)
-	for ans := range results {
-		if ans < minLoc {
-			minLoc = ans
+	minVal := int64(math.MaxInt64)
+	for i := 0; i < len(m.seeds); i += 2 {
+		start, length := m.seeds[i], m.seeds[i+1]
+		val := findMinimum(m, start, length, 0, ims)
+		if val < minVal {
+			minVal = val
 		}
 	}
+	return minVal
+}
 
-	return minLoc
+
+func min(x, y int64) int64 {
+	if x < y {
+		return x
+	}
+	return y
 }
