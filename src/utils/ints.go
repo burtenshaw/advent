@@ -2,25 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
 
-func Reader(input string) string {
-	content, err := os.ReadFile(input)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return strings.TrimSpace(string(content))
-}
-
-func ReaderSplit(filePath string) []string {
-	fileContent := Reader(filePath)
-	return strings.Split(fileContent, "\n")
-}
 
 func MustParseInt64(s string) int64 {
 	val, err := strconv.ParseInt(s, 10, 64)
@@ -37,4 +22,16 @@ func MustStringToInt64Slice(input string) []int64 {
 		vals[i] = MustParseInt64(field)
 	}
 	return vals
+}
+
+
+// takes a string which is a list of integers separated by spaces and returns the corresponding array of ints
+func ParseIntList(input string) (output []int) {
+	maybeInts := strings.Split(input, " ")
+	for _, maybeInt := range maybeInts {
+		if intToAdd, err := strconv.Atoi(maybeInt); err == nil {
+			output = append(output, intToAdd)
+		}
+	}
+	return
 }
