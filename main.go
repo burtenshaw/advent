@@ -12,6 +12,7 @@ import (
 	"github.com/burtenshaw/advent/src/day6"
 	"github.com/burtenshaw/advent/src/day7"
 	"github.com/burtenshaw/advent/src/day8"
+	"github.com/burtenshaw/advent/src/day9"
 )
 
 func main() {
@@ -41,6 +42,8 @@ func main() {
 		day7.Run(inputData)
 	case "8":
 		day8.Run(inputData)
+	case "9":
+		day9.Run(inputData)
 	default:
 		fmt.Println("Day not implemented")
 	}
